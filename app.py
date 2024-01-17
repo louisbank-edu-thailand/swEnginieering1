@@ -143,7 +143,7 @@ def delete(id):
         db.session.commit()
         return redirect(url_for('all_requests'))
     except:
-        return 'There was an issue deleting your task'
+        return 'There was an issue deleting your request'
 
 
 if __name__ == '__main__':
