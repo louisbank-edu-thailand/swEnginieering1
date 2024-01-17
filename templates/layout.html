@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Include Bootstrap CDN links -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* You can add your own custom CSS here */
+        .container {
+            margin-top: 50px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+    </style>
+    <title></title>
+
+    <style>
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Add custom styles for the logo */
+        .navbar-brand img {
+            max-height: 40px; /* Adjust the height as needed */
+            height: 40px;
+            margin-right: 10px; /* Optional: Add some margin to the right of the image */
+        }
+
+    </style>
+</head>
+<body>
+<!-- Create a navbar with Bootstrap -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='icon.jpeg') }}" alt="Logo">
+        </a>
+
+        <!-- <a class="navbar-brand" href="#">DLR - digitize leave request</a> -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/home">Home</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="/login">Login</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="/register">Register</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="/request">Place Request</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="/all_requests">All Requests</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="/logout">Logout</a>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<!-- Create a container for the main content -->
+{% block content %}
+
+{% endblock %}
+</body>
+
+
+<script>
+    // Initialize Bootstrap Datepicker for start and end date inputs
+    $(document).ready(function () {
+        $("#startDate").datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+
+        $("#endDate").datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
+</html>

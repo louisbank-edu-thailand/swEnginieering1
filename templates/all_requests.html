@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Requests overview</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Reason</th>
+                <th>Placed by</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for request in requests_with_username %}
+                <tr>
+                    <td>{{ request[0].id }}</td>
+                    <td>{{ request[0].start_date }}</td>
+                    <td>{{ request[0].end_date }}</td>
+                    <td>{{ request[0].reason }}</td>
+                    <td>{{ request[1] }}</td>
+                    <td>
+                        <a href="/deleteRequest/{{ request[0].id }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <h1>leave request</h1>
+
+        <form method="post">
+            <div class="row">
+
+                <div class="col-md-6">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" class="form-control" id="startDateInput" name="reqStartDate">
+                </div>
+                <div class="col-md-6">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" class="form-control" id="endDateInput" name="reqEndDate">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="name">reason:</label>
+                    <input type="text" class="form-control" id="nameInput" name="reason">
+                </div>
+            </div>
+            <button type="submit" class="btn mt-5 btn-primary">Send Request</button>
+        </form>
+
+    </div>
+
+
+{% endblock %}
