@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+import datetime as dt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'this_is_insanely_secret_and_hard_to_crack'  # not secure
@@ -20,6 +21,7 @@ class UserObject(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(100), nullable=False)
+    leave_quota = db.Column(db.Integer, default=10)
 
     # requests = db.relationship('request', backref='user', lazy=True)
 
@@ -61,16 +63,47 @@ def all_requests():
 @app.route('/request', methods=['GET', 'POST'])
 @login_required
 def requests():
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect('/login')
+
+    #user_id = session.get('user_id')
+    user_id = current_user.id
+    user = UserObject.query.filter(UserObject.user_id == user_id).first()
+    user_leave_quota = user.leave_quota
+
+    print("Leave quota:")
+    print(user.leave_quota)
+
     if request.method == 'POST':
         request_start_date = request.form.get('reqStartDate')
         request_end_date = request.form.get('reqEndDate')
         reason = request.form.get('reason')
-        print(request_start_date, request_end_date, reason)
-        new_request = Request(start_date=request_start_date, end_date=request_end_date, reason=reason,
-                              user_id=current_user.id)
-        db.session.add(new_request)
-        db.session.commit()
-        return redirect(url_for('all_requests'))
+
+        months_difference = (dt.datetime.strptime(request_start_date, "%Y-%m-%d").date() - dt.date.today()).days/30
+
+        dt_leavestart = dt.datetime.strptime(request_start_date, "%Y-%m-%d").date()
+        dt_leaveend = dt.datetime.strptime(request_end_date, "%Y-%m-%d").date()
+
+        leave_duration = (dt_leaveend - dt_leavestart).days + 1
+
+        if dt.datetime.strptime(request_start_date, "%Y-%m-%d").date() == dt.date.today():
+            return "You cannot request a leave on the same day"
+        elif months_difference > 2:
+            return "You cannot request a leave more than 2 months in advance"
+        elif leave_duration > user_leave_quota:
+            return "You cannot request a leave more than your leave quota"
+        else:
+            new_request = Request(start_date=request_start_date, end_date=request_end_date, reason=reason,
+                                  user_id=current_user.id)
+            #subtract the leave_duration from UserObject leave_quota
+            user.leave_quota = user.leave_quota - leave_duration
+            print("new leave quota:")
+            print(user.leave_quota)
+
+            db.session.add(new_request)
+            db.session.commit()
+            return redirect(url_for('all_requests'))
+
     else:
         return render_template('request.html')
 
@@ -91,6 +124,8 @@ def login():
             user = User(user_id)
             login_user(user)
             flash('Login successful!', 'success')
+            session['logged_in'] = True
+            session['user_id'] = user.id
             return redirect(url_for('requests'))
         else:
             flash('Invalid username or password', 'error')
@@ -131,6 +166,8 @@ def register():
 def logout():
     logout_user()
     flash('Logout successful!', 'success')
+    session.pop('logged_in', None)
+    session.pop('user_id', None)
     return redirect(url_for('home'))
 
 
@@ -138,13 +175,19 @@ def logout():
 def delete(id):
     req_to_delete = Request.query.get_or_404(id)
 
-    try:
-        db.session.delete(req_to_delete)
-        db.session.commit()
-        return redirect(url_for('all_requests'))
-    except:
-        return 'There was an issue deleting your request'
+    request_date = dt.datetime.strptime(req_to_delete.start_date, "%Y-%m-%d").date()
 
+    if request_date < dt.date.today():
+        return "You cannot delete a request that has already passed"
+    elif int(current_user.id) != int(req_to_delete.user_id):
+        return "You cannot delete a request that is not yours."
+    else:
+        try:
+            db.session.delete(req_to_delete)
+            db.session.commit()
+            return redirect(url_for('all_requests'))
+        except:
+            return 'There was an issue deleting your request'
 
 if __name__ == '__main__':
     app.run(debug=True)
